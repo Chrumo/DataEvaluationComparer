@@ -27,29 +27,30 @@ public class LoggedStatisticsListener implements UpdateListener  {
     
     @Override
     public void update(EventBean[] newData, EventBean[] oldData) {
-        EventBean eb = newData[0];
-        long timestamp = Long.valueOf(eb.get("timestamp").toString());
-        boolean success = Boolean.valueOf(eb.get("success").toString());
-        int amount = Integer.valueOf(eb.get("count(*)").toString());
-        double avg = Double.valueOf(eb.get("avg(amount)").toString());
-        int max = Integer.valueOf(eb.get("max(amount)").toString());
-        int min = Integer.valueOf(eb.get("min(amount)").toString());
-        System.out.println("+++++++++++++++++++++++++++++++++");
-        System.out.println("timestamp: " + new Date(timestamp).toString());
-        System.out.println("success: " + success);
-        System.out.println("amount: " + amount);
-        System.out.println("avg: " + avg);
-        System.out.println("max: " + max);
-        System.out.println("min: " + min);
-        System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-        LastEvent event = new LastEvent(timestamp);
-        CurrentTimeEvent timeEvent;
-        time = timestamp;
-        if(time > old_time){
-            timeEvent = new CurrentTimeEvent(time);
-            old_time = time;
-            runtime.sendEvent(timeEvent);
+        for(EventBean eb : newData){
+            long timestamp = Long.valueOf(eb.get("timestamp").toString());
+            boolean success = Boolean.valueOf(eb.get("success").toString());
+            int amount = Integer.valueOf(eb.get("count(*)").toString());
+            double avg = Double.valueOf(eb.get("avg(amount)").toString());
+            int max = Integer.valueOf(eb.get("max(amount)").toString());
+            int min = Integer.valueOf(eb.get("min(amount)").toString());/*
+            System.out.println("+++++++++++++++++++++++++++++++++");
+            System.out.println("timestamp: " + new Date(timestamp).toString());
+            System.out.println("success: " + success);
+            System.out.println("amount: " + amount);
+            System.out.println("avg: " + avg);
+            System.out.println("max: " + max);
+            System.out.println("min: " + min);
+            System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");*/
+            LastEvent event = new LastEvent(timestamp);
+            CurrentTimeEvent timeEvent;
+            time = timestamp;
+            if(time > old_time){
+                timeEvent = new CurrentTimeEvent(time);
+                old_time = time;
+                runtime.sendEvent(timeEvent);
+            }
+            runtime.sendEvent(event);
         }
-        runtime.sendEvent(event);
     }
 }

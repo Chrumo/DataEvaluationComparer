@@ -30,7 +30,7 @@ import java.util.List;
  * @author tomas
  */
 public class Esper {
-    public void runAntiDictAttack(List<UserLoggedInfo> events, Timer t) {
+    public void runAntiDictAttack(List<UserLoggedInfo> events, Timer stopWatch) {
         MyEventStream notLoggedStream = new MyEventStream("UserLogged", "filter", UserLoggedInfo.class.getName());
         MyEventStream possibleThreatStream = new MyEventStream("UserNotLogged", "possibleThreat", UserLoggedInfo.class.getName());
         MyEventStream threatStream = new MyEventStream("PossibleThreat", "threat", PossibleThreatEvent.class.getName());
@@ -50,9 +50,9 @@ public class Esper {
         notLoggedStream.appendListener(notLoggedStatement, new NotLoggedListener(possibleThreatStream.getRuntime()));
         possibleThreatStream.appendListener(possibleThreatStatement, new PossibleThreatListener(threatStream.getRuntime()));
         threatStream.appendListener(threatStatement, new ThreatListener(lastStream.getRuntime()));
-        lastStream.appendListener(lastStatement, new LastListener(t));
+        lastStream.appendListener(lastStatement, new LastListener(stopWatch));
         EPRuntime runtime = notLoggedStream.getRuntime();
-        t.start();
+        stopWatch.start();
         long old_time = 0;
         long time;
         for(UserLoggedInfo event : events) {
@@ -65,6 +65,11 @@ public class Esper {
             }
             runtime.sendEvent(event);
         }
+        long timeElapsed = stopWatch.stop();
+        System.out.println("Esper-AntiDictAttack: " + timeElapsed + " ms");
+        notLoggedStream.cleanUp();
+        possibleThreatStream.cleanUp();
+        threatStream.cleanUp();
     }
     //output snapshot
     public void runSystemLoadStatistics(List<UserLoggedInfo> events, Timer stopWatch) {
@@ -107,6 +112,13 @@ public class Esper {
             }
             runtime.sendEvent(event);
         }
+        long timeElapsed = stopWatch.stop();
+        System.out.println("Esper-SystemLoadStatistics: " + timeElapsed + " ms");
+        dividerStream.cleanUp();
+        loggedHourStream.cleanUp();
+        loggedStream.cleanUp();
+        notLoggedHourStream.cleanUp();
+        notLoggedStream.cleanUp();
     }
     
     public void runGroupByTest(List<TestEvent> events, Timer stopWatch) {
@@ -129,38 +141,20 @@ public class Esper {
             }
             runtime.sendEvent(event);
         }
+        long timeElapsed = stopWatch.stop();
+        System.out.println("Esper-GroupByTest: " + timeElapsed + " ms");
+        testStream.cleanUp();
     }
     
-    public void runJoinTest(List<TestEvent> eventsLeft, Timer stopWatch) {
+    public void runJoinTest(List<TestEvent> events, Timer stopWatch) {
         MyEventStream testStream = new MyEventStream("Test", "test", TestEvent.class.getName());
-        testStream.createStatement("create window TestLeft.win:keepall() as select * from " + TestEvent.class.getName());
-        testStream.createStatement("create window TestRight.win:keepall() as select * from " + TestEvent.class.getName());
-        testStream.createStatement("insert into TestLeft select * from Test where b = \"Left\"");
-        testStream.createStatement("insert into TestRight select * from Test where b = \"Right\"");
-        EPStatement testStatementLeft = testStream.createStatement("select TestLeft.test, TestLeft.timestamp, " +
+        testStream.createStatement("create window TestLeft.win:time(1 sec) as select * from " + TestEvent.class.getName());
+        testStream.createStatement("create window TestRight.win:time(1 sec) as select * from " + TestEvent.class.getName());
+        testStream.createStatement("insert into TestLeft select * from Test where b = \"l\"");
+        testStream.createStatement("insert into TestRight select * from Test where b = \"r\"");
+        EPStatement testStatement = testStream.createStatement("select TestLeft.test, TestLeft.timestamp, " +
                                                 "TestRight.test, TestRight.timestamp " + 
-                                                "from TestLeft right outer join TestRight");
-        testStream.appendListener(testStatementLeft, new TestListener());
-        EPRuntime runtime = testStream.getRuntime();
-        stopWatch.start();
-        long old_time = -1;
-        long time;
-        for(TestEvent event : eventsLeft) {
-            CurrentTimeEvent timeEvent;
-            time = event.getTimestamp();
-            if(time > old_time){
-                timeEvent = new CurrentTimeEvent(time);
-                old_time = time;
-                runtime.sendEvent(timeEvent);
-            }
-            runtime.sendEvent(event);
-        }
-    }
-    
-    public void runSequenceTest(List<TestEvent> events, Timer stopWatch) {
-        MyEventStream testStream = new MyEventStream("Test", "test", TestEvent.class.getName());
-        EPStatement testStatement = testStream.createStatement("select * from pattern[every Test(test='a') " +
-                                            "-> every Test(test='b')]");
+                                                "from TestLeft, TestRight");
         testStream.appendListener(testStatement, new TestListener());
         EPRuntime runtime = testStream.getRuntime();
         stopWatch.start();
@@ -176,5 +170,32 @@ public class Esper {
             }
             runtime.sendEvent(event);
         }
+        long timeElapsed = stopWatch.stop();
+        System.out.println("Esper-JoinTest: " + timeElapsed + " ms");
+        testStream.cleanUp();
+    }
+    
+    public void runSequenceTest(List<TestEvent> events, Timer stopWatch) {
+        MyEventStream testStream = new MyEventStream("Test", "test", TestEvent.class.getName());
+        EPStatement testStatement = testStream.createStatement("select * from pattern[" +
+                                            "every Test(test='a') -> every Test(test='b')]");
+        testStream.appendListener(testStatement, new TestListener());
+        EPRuntime runtime = testStream.getRuntime();
+        stopWatch.start();
+        long old_time = -1;
+        long time;
+        for(TestEvent event : events) {
+            CurrentTimeEvent timeEvent;
+            time = event.getTimestamp();
+            if(time > old_time){
+                timeEvent = new CurrentTimeEvent(time);
+                old_time = time;
+                runtime.sendEvent(timeEvent);
+            }
+            runtime.sendEvent(event);
+        }
+        long timeElapsed = stopWatch.stop();
+        System.out.println("Esper-SequenceTest: " + timeElapsed + " ms");
+        testStream.cleanUp();
     }
 }

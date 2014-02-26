@@ -26,25 +26,26 @@ public class NotLoggedListener implements UpdateListener {
     
     @Override
     public void update(EventBean[] newData, EventBean[] oldData) {
-        EventBean eb = newData[0];
-        long timestamp = Long.valueOf(eb.get("timestamp").toString());
-        String type = (String) eb.get("type");
-        String host = (String) eb.get("host");
-        String schema = (String) eb.get("schema");
-        boolean success = Boolean.valueOf(eb.get("success").toString());
-        String sourceHost = (String) eb.get("sourceHost");
-        int sourcePort = Integer.valueOf(eb.get("sourcePort").toString());
-        String user = (String) eb.get("user");
-        String application = (String) eb.get("application");
-        int level = Integer.valueOf(eb.get("level").toString());
-        UserLoggedInfo event = new UserLoggedInfo(timestamp, type, host, schema, success, sourceHost, sourcePort, user, application, level);
-        CurrentTimeEvent timeEvent;
-        time = timestamp;
-        if(time > old_time){
-            timeEvent = new CurrentTimeEvent(time);
-            old_time = time;
-            runtime.sendEvent(timeEvent);
+        for(EventBean eb : newData){
+            long timestamp = Long.valueOf(eb.get("timestamp").toString());
+            String type = (String) eb.get("type");
+            String host = (String) eb.get("host");
+            String schema = (String) eb.get("schema");
+            boolean success = Boolean.valueOf(eb.get("success").toString());
+            String sourceHost = (String) eb.get("sourceHost");
+            int sourcePort = Integer.valueOf(eb.get("sourcePort").toString());
+            String user = (String) eb.get("user");
+            String application = (String) eb.get("application");
+            int level = Integer.valueOf(eb.get("level").toString());
+            UserLoggedInfo event = new UserLoggedInfo(timestamp, type, host, schema, success, sourceHost, sourcePort, user, application, level);
+            CurrentTimeEvent timeEvent;
+            time = timestamp;
+            if(time > old_time){
+                timeEvent = new CurrentTimeEvent(time);
+                old_time = time;
+                runtime.sendEvent(timeEvent);
+            }
+            runtime.sendEvent(event);
         }
-        runtime.sendEvent(event);
     }
 }

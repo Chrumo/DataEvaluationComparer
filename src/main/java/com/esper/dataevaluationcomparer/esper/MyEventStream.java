@@ -55,4 +55,8 @@ public class MyEventStream {
     public void sendEvent(Object event) {
         cepRT.sendEvent(event);
     }
+    
+    public void cleanUp(){
+        cepAdm.destroyAllStatements();
+    }
 }

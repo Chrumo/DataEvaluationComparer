@@ -28,33 +28,34 @@ public class DivideListener implements UpdateListener  {
     
     @Override
     public void update(EventBean[] newData, EventBean[] oldData) {
-        EventBean eb = newData[0];
-        long timestamp = Long.valueOf(eb.get("timestamp").toString());
-        String type = (String) eb.get("type");
-        String host = (String) eb.get("host");
-        String schema = (String) eb.get("schema");
-        boolean success = Boolean.valueOf(eb.get("success").toString());
-        String sourceHost = (String) eb.get("sourceHost");
-        int sourcePort = Integer.valueOf(eb.get("sourcePort").toString());
-        String user = (String) eb.get("user");
-        String application = (String) eb.get("application");
-        int level = Integer.valueOf(eb.get("level").toString());
-        UserLoggedInfo event = new UserLoggedInfo(timestamp, type, host, schema, success, sourceHost, sourcePort, user, application, level);
-        CurrentTimeEvent timeEvent;
-        time = timestamp;
-        timeEvent = new CurrentTimeEvent(time);
-        if(time > old_time){
-            old_time = time;
-            if(success){
-                runtimeTrue.sendEvent(timeEvent);
-            }else{
-                runtimeFalse.sendEvent(timeEvent);
+        for(EventBean eb : newData){
+            long timestamp = Long.valueOf(eb.get("timestamp").toString());
+            String type = (String) eb.get("type");
+            String host = (String) eb.get("host");
+            String schema = (String) eb.get("schema");
+            boolean success = Boolean.valueOf(eb.get("success").toString());
+            String sourceHost = (String) eb.get("sourceHost");
+            int sourcePort = Integer.valueOf(eb.get("sourcePort").toString());
+            String user = (String) eb.get("user");
+            String application = (String) eb.get("application");
+            int level = Integer.valueOf(eb.get("level").toString());
+            UserLoggedInfo event = new UserLoggedInfo(timestamp, type, host, schema, success, sourceHost, sourcePort, user, application, level);
+            CurrentTimeEvent timeEvent;
+            time = timestamp;
+            timeEvent = new CurrentTimeEvent(time);
+            if(time > old_time){
+                old_time = time;
+                if(success){
+                    runtimeTrue.sendEvent(timeEvent);
+                }else{
+                    runtimeFalse.sendEvent(timeEvent);
+                }
             }
-        }
-        if(success){
-            runtimeTrue.sendEvent(event);
-        }else{
-            runtimeFalse.sendEvent(event);
+            if(success){
+                runtimeTrue.sendEvent(event);
+            }else{
+                runtimeFalse.sendEvent(event);
+            }
         }
     }
 }

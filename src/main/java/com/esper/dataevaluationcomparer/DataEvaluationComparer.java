@@ -4,6 +4,7 @@ import com.esper.dataevaluationcomparer.esper.Esper;
 import com.esper.dataevaluationcomparer.esper.events.TestEvent;
 import com.esper.dataevaluationcomparer.esper.events.UserLoggedInfo;
 import com.esper.dataevaluationcomparer.postgresql.PostgreSQL;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
@@ -25,41 +26,33 @@ public class DataEvaluationComparer
         Logger.getRootLogger().addAppender(appender);
         Logger.getRootLogger().setLevel((Level) Level.WARN);
         Timer stopWatch = new Timer();
-        /*stopWatch.start();
+        stopWatch.start();
         List<UserLoggedInfo> events = LogIOoperations.getArrayOfEventsFromFile(filename);
         long timeElapsed = stopWatch.stop();
         System.out.println("Elapsed: " + timeElapsed + " ms");
-        System.out.println("Number of events: " + events.size());*/
-        stopWatch.start();
+        System.out.println("Number of events: " + events.size());
+        /*stopWatch.start();
         List<TestEvent> testEvents = LogIOoperations.getArrayOfTestEventsFromFile(testFilename);
-        long timeElapsed = stopWatch.stop();
+        timeElapsed = stopWatch.stop();
         System.out.println("Elapsed: " + timeElapsed + " ms");
-        System.out.println("Number of events: " + testEvents.size());
-        Esper esper = new Esper();
-        /*stopWatch.start();
-        esper.runAntiDictAttack(events, stopWatch);
-        timeElapsed = stopWatch.stop();
-        System.out.println("Esper-AntiDictAttack: " + timeElapsed + " ms");*/
-        /*stopWatch.start();
-        esper.runSystemLoadStatistics(events, stopWatch);
-        timeElapsed = stopWatch.stop();
-        System.out.println("Esper-SystemLoadStatistics: " + timeElapsed + " ms");*/
-        /*stopWatch.start();
-        esper.runGroupByTest(testEvents, stopWatch);
-        timeElapsed = stopWatch.stop();
-        System.out.println("Esper-GroupByTest: " + timeElapsed + " ms");*/
-        stopWatch.start();
-        esper.runJoinTest(testEvents, stopWatch);
-        timeElapsed = stopWatch.stop();
-        System.out.println("Esper-JoinTest: " + timeElapsed + " ms");
-        /*stopWatch.start();
-        esper.runSequenceTest(testEvents, stopWatch);
-        timeElapsed = stopWatch.stop();
-        System.out.println("Esper-SequenceTest: " + timeElapsed + " ms");*/
+        System.out.println("Number of events: " + testEvents.size());*/
         
         //-------------------------
-        /*
+        
+        //Esper esper = new Esper();
+        //esper.runAntiDictAttack(events, stopWatch);
+        //esper.runSystemLoadStatistics(events, stopWatch);
+        //esper.runGroupByTest(testEvents, stopWatch);
+        //esper.runJoinTest(testEvents, stopWatch);
+        //esper.runSequenceTest(testEvents, stopWatch);
+        
+        //-------------------------
+        
         PostgreSQL db = new PostgreSQL();
-        db.runPostgreSQL();*/
+        db.runAntiDictAttack(events, stopWatch);
+        //db.runSystemLoadStatistics(events, stopWatch);
+        //db.runGroupByTest(testEvents, stopWatch);
+        //db.runJoinTest(testEvents, stopWatch);
+        //db.runSequenceSQL(testEvents, stopWatch);
     }
 }

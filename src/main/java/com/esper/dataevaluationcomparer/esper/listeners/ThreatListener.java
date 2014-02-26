@@ -28,18 +28,19 @@ public class ThreatListener implements UpdateListener  {
     
     @Override
     public void update(EventBean[] newData, EventBean[] oldData) {
-        EventBean eb = newData[0];
-        long timestamp = Long.valueOf(eb.get("timestamp").toString());
-        LastEvent event = new LastEvent(timestamp);
-        CurrentTimeEvent timeEvent;
-        time = timestamp;
-        timeEvent = new CurrentTimeEvent(time);
-        if(time > old_time){
-            old_time = time;
-            runtime.sendEvent(timeEvent);
+        for(EventBean eb : newData){
+            long timestamp = Long.valueOf(eb.get("timestamp").toString());
+            LastEvent event = new LastEvent(timestamp);
+            CurrentTimeEvent timeEvent;
+            time = timestamp;
+            timeEvent = new CurrentTimeEvent(time);
+            if(time > old_time){
+                old_time = time;
+                runtime.sendEvent(timeEvent);
+            }
+            runtime.sendEvent(event);
+//            count++;
+//            System.out.println(count);
         }
-        runtime.sendEvent(event);
-        count++;
-        System.out.println(count);
     }
 }

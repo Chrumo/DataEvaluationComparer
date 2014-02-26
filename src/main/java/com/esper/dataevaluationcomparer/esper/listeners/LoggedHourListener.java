@@ -26,20 +26,21 @@ public class LoggedHourListener implements UpdateListener  {
     
     @Override
     public void update(EventBean[] newData, EventBean[] oldData) {
-        EventBean eb = newData[0];
-        long timestamp = Long.valueOf(eb.get("timestamp").toString());
-        String host = (String) eb.get("host");
-        boolean success = Boolean.valueOf(eb.get("success").toString());
-        String user = (String) eb.get("user");
-        int amount = Integer.valueOf(eb.get("count(*)").toString());
-        NumPerHourEvent event = new NumPerHourEvent(timestamp, host, success, user, amount);
-        CurrentTimeEvent timeEvent;
-        time = timestamp;
-        if(time > old_time){
-            timeEvent = new CurrentTimeEvent(time);
-            old_time = time;
-            runtime.sendEvent(timeEvent);
+        for(EventBean eb : newData){
+            long timestamp = Long.valueOf(eb.get("timestamp").toString());
+            String host = (String) eb.get("host");
+            boolean success = Boolean.valueOf(eb.get("success").toString());
+            String user = (String) eb.get("user");
+            int amount = Integer.valueOf(eb.get("count(*)").toString());
+            NumPerHourEvent event = new NumPerHourEvent(timestamp, host, success, user, amount);
+            CurrentTimeEvent timeEvent;
+            time = timestamp;
+            if(time > old_time){
+                timeEvent = new CurrentTimeEvent(time);
+                old_time = time;
+                runtime.sendEvent(timeEvent);
+            }
+            runtime.sendEvent(event);
         }
-        runtime.sendEvent(event);
     }
 }

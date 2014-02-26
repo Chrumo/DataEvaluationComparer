@@ -26,23 +26,24 @@ public class PossibleThreatListener  implements UpdateListener {
         
         @Override
         public void update(EventBean[] newData, EventBean[] oldData) {
-            EventBean eb = newData[0];
-            long timestamp = Long.valueOf(eb.get("timestamp").toString());
-            String type = (String) eb.get("type");
-            String host = (String) eb.get("host");
-            String schema = (String) eb.get("schema");
-            String value1 = "ahoj";
-            int value2 = 42;
-            String application = (String) eb.get("application");
-            int level = Integer.valueOf(eb.get("level").toString());
-            PossibleThreatEvent event = new PossibleThreatEvent(timestamp, type, host, schema, value1, value2, application, level);
-            CurrentTimeEvent timeEvent;
-            time = timestamp;
-            timeEvent = new CurrentTimeEvent(time);
-            if(time > old_time){
-                old_time = time;
-                runtime.sendEvent(timeEvent);
+            for(EventBean eb : newData){
+                long timestamp = Long.valueOf(eb.get("timestamp").toString());
+                String type = (String) eb.get("type");
+                String host = (String) eb.get("host");
+                String schema = (String) eb.get("schema");
+                String value1 = "ahoj";
+                int value2 = 42;
+                String application = (String) eb.get("application");
+                int level = Integer.valueOf(eb.get("level").toString());
+                PossibleThreatEvent event = new PossibleThreatEvent(timestamp, type, host, schema, value1, value2, application, level);
+                CurrentTimeEvent timeEvent;
+                time = timestamp;
+                timeEvent = new CurrentTimeEvent(time);
+                if(time > old_time){
+                    old_time = time;
+                    runtime.sendEvent(timeEvent);
+                }
+                runtime.sendEvent(event);
             }
-            runtime.sendEvent(event);
         }
 }
