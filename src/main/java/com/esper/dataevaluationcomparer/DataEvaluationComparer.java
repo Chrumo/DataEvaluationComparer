@@ -2,9 +2,6 @@ package com.esper.dataevaluationcomparer;
 
 import com.esper.dataevaluationcomparer.esper.Esper;
 import com.esper.dataevaluationcomparer.esper.events.TestEvent;
-import com.esper.dataevaluationcomparer.esper.events.UserLoggedInfo;
-import com.esper.dataevaluationcomparer.postgresql.PostgreSQL;
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
@@ -12,12 +9,11 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
 
 /**
- * Hello world!
+ * Application to test speed and function of event stream operator in Esper
  *
  */
 public class DataEvaluationComparer 
 {
-    private static final String filename = "jel.log";
     private static final String testFilename = "test.log";
     
     public static void main( String[] args )
@@ -25,34 +21,26 @@ public class DataEvaluationComparer
         ConsoleAppender appender = new ConsoleAppender(new SimpleLayout());
         Logger.getRootLogger().addAppender(appender);
         Logger.getRootLogger().setLevel((Level) Level.WARN);
+        long timeElapsed = 0;
         Timer stopWatch = new Timer();
         stopWatch.start();
-        List<UserLoggedInfo> events = LogIOoperations.getArrayOfEventsFromFile(filename);
-        long timeElapsed = stopWatch.stop();
-        System.out.println("Elapsed: " + timeElapsed + " ms");
-        System.out.println("Number of events: " + events.size());
-        /*stopWatch.start();
-        List<TestEvent> testEvents = LogIOoperations.getArrayOfTestEventsFromFile(testFilename);
+        //LogIOoperations.generateTestFile(20, 1);
+        stopWatch.start();
+        //List<TestEvent> testEvents = LogIOoperations.getArrayOfTestEventsFromFile(testFilename);
+        List<TestEvent> testEvents = LogIOoperations.generateTestArray(500000, 500, 1);
+        //System.out.println(testEvents.toString()); //verifying generated array
         timeElapsed = stopWatch.stop();
         System.out.println("Elapsed: " + timeElapsed + " ms");
-        System.out.println("Number of events: " + testEvents.size());*/
+        System.out.println("Number of events: " + testEvents.size());
         
         //-------------------------
-        
-        //Esper esper = new Esper();
-        //esper.runAntiDictAttack(events, stopWatch);
-        //esper.runSystemLoadStatistics(events, stopWatch);
-        //esper.runGroupByTest(testEvents, stopWatch);
+        //comment/uncommet test you want to test, you can't test more than one test at time
+        Esper esper = new Esper();
+        esper.runGroupByTest(testEvents, stopWatch);
         //esper.runJoinTest(testEvents, stopWatch);
         //esper.runSequenceTest(testEvents, stopWatch);
-        
-        //-------------------------
-        
-        PostgreSQL db = new PostgreSQL();
-        db.runAntiDictAttack(events, stopWatch);
-        //db.runSystemLoadStatistics(events, stopWatch);
-        //db.runGroupByTest(testEvents, stopWatch);
-        //db.runJoinTest(testEvents, stopWatch);
-        //db.runSequenceSQL(testEvents, stopWatch);
+        //esper.runAggregateTest(testEvents, stopWatch);
+        //esper.runOrderByTest(testEvents, stopWatch);
+        //esper.runFirstNTest(testEvents, stopWatch);
     }
 }

@@ -11,30 +11,39 @@ import org.codehaus.jackson.annotate.JsonProperty;
  * @author tomas
  */
 public class TestEvent {
+    //attribute used for test purpose
     @JsonProperty("test")
-    private String test;
-    
+    private long test;
+    //timestamp of creation of event
     @JsonProperty("timestamp")
     private long timestamp;
-    
+    //test to which stream is this event to send
     @JsonProperty("b")
     private String b;
 
+    /**
+     * Constructor, create new object with default values test = timestamp = -1
+     */
     public TestEvent() {
-        test = "";
+        test = -1;
         timestamp = -1;
     }
 
-    public TestEvent(String test, long timestamp) {
+    /**
+     * Constructor, create new object with given values
+     * @param test
+     * @param timestamp 
+     */
+    public TestEvent(long test, long timestamp) {
         this.test = test;
         this.timestamp = timestamp;
     }
 
-    public String getTest() {
+    public long getTest() {
         return test;
     }
 
-    public void setTest(String test) {
+    public void setTest(long test) {
         this.test = test;
     }
 
